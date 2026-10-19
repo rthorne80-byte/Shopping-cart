@@ -1,0 +1,140 @@
+"""
+Online Shopping Cart
+Project 7.1.1 - Python Programming
+
+A command-line shopping cart that lets a user add, remove, and modify items,
+then display the cart contents and total cost.
+"""
+
+
+def format_money(amount):
+    """Show whole-dollar amounts without decimals ($10), otherwise two decimals ($2.50)."""
+    if amount == int(amount):
+        return f'{int(amount)}'
+    return f'{amount:.2f}'
+
+
+class ItemToPurchase:
+    """A single item in the shopping cart."""
+
+    def __init__(self, item_name='none', item_price=0.0, item_quantity=0):
+        self.item_name = item_name
+        self.item_price = item_price
+        self.item_quantity = item_quantity
+
+    def get_cost(self):
+        return self.item_price * self.item_quantity
+
+    def print_item_cost(self):
+        print(f'{self.item_name} {self.item_quantity} @ '
+              f'${format_money(self.item_price)} = ${format_money(self.get_cost())}')
+
+
+class ShoppingCart:
+    """A customer's shopping cart holding ItemToPurchase objects."""
+
+    def __init__(self, customer_name='none', current_date='January 1, 2025'):
+        self.customer_name = customer_name
+        self.current_date = current_date
+        self.cart_items = []
+
+    def add_item(self, item):
+        """Add an ItemToPurchase to the cart."""
+        self.cart_items.append(item)
+
+    def remove_item(self, item_name):
+        """Remove the item with the given name, if it exists."""
+        for item in self.cart_items:
+            if item.item_name == item_name:
+                self.cart_items.remove(item)
+                return
+        print('Item not found in cart. Nothing removed.')
+
+    def modify_item(self, item):
+        """Update the quantity of a cart item that matches item.item_name."""
+        for cart_item in self.cart_items:
+            if cart_item.item_name == item.item_name:
+                cart_item.item_quantity = item.item_quantity
+                return
+        print('Item not found in cart. Nothing modified.')
+
+    def get_num_items_in_cart(self):
+        """Total quantity of all items in the cart."""
+        return sum(item.item_quantity for item in self.cart_items)
+
+    def get_cost_of_cart(self):
+        """Total cost of all items in the cart."""
+        return sum(item.get_cost() for item in self.cart_items)
+
+    def print_total(self):
+        """Print every item, its cost, and the cart total."""
+        print(f"{self.customer_name}'s Shopping Cart - {self.current_date}")
+        if len(self.cart_items) == 0:
+            print('SHOPPING CART IS EMPTY')
+            return
+        for item in self.cart_items:
+            item.print_item_cost()
+        print(f'Number of Items: {self.get_num_items_in_cart()}')
+        print()
+        print(f'Total: ${format_money(self.get_cost_of_cart())}')
+
+
+def print_menu():
+    print('MENU')
+    print('a - Add item to cart')
+    print('r - Remove item from cart')
+    print('c - Change item quantity')
+    print('o - Output shopping cart')
+    print('q - Quit')
+
+
+def execute_menu(choice, cart):
+    """Run the action for a single (already validated) menu choice."""
+    if choice == 'a':
+        print('ADD ITEM TO CART')
+        name = input('Enter the item name: ')
+        price = float(input('Enter the item price: '))
+        quantity = int(input('Enter the item quantity: '))
+        cart.add_item(ItemToPurchase(name, price, quantity))
+
+    elif choice == 'r':
+        print('REMOVE ITEM FROM CART')
+        name = input('Enter name of item to remove: ')
+        cart.remove_item(name)
+
+    elif choice == 'c':
+        print('CHANGE ITEM QUANTITY')
+        name = input('Enter the item name: ')
+        quantity = int(input('Enter the new quantity: '))
+        cart.modify_item(ItemToPurchase(name, 0, quantity))
+
+    elif choice == 'o':
+        print('OUTPUT SHOPPING CART')
+        cart.print_total()
+
+
+def main():
+    customer_name = input("Enter customer's name: ")
+    current_date = input("Enter today's date: ")
+    print()
+    print(f'Customer name: {customer_name}')
+    print(f"Today's date: {current_date}")
+
+    cart = ShoppingCart(customer_name, current_date)
+    valid_choices = ['a', 'r', 'c', 'o', 'q']
+
+    choice = ''
+    while choice != 'q':
+        print()
+        print_menu()
+        print()
+        print('Choose an option:')
+        choice = input().strip()
+        while choice not in valid_choices:
+            print('Choose an option:')
+            choice = input().strip()
+        execute_menu(choice, cart)
+
+
+if __name__ == '__main__':
+    main()
